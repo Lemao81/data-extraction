@@ -120,6 +120,10 @@
               "devServerTarget": "data-extraction:serve:production"
             }
           }
+        },
+        "deploy": {
+          "builder": "@angular/fire:deploy",
+          "options": {}
         }
       }
     }
