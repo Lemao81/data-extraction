@@ -1,19 +1,10 @@
 <div class="d-flex justify-content-center align-items-center w-100 h-100">
   <div class="button-container">
     <div class="row">
-      <div class="input-group">
-        <span class="input-group-text">Url</span>
-        <input type="text" class="form-control" placeholder="Url" [(ngModel)]="firestoreUrl" (keydown)="onUrlChange()" />
-      </div>
-    </div>
-    <div class="row">
-      <button type="button" class="btn btn-secondary btn-lg" (click)="uploadData()">Upload</button>
-    </div>
-    <div class="row">
       <button type="button" class="btn btn-secondary btn-lg" (click)="downloadData()">Download</button>
     </div>
     <div class="row">
-      <span class="error" #errorText></span>
+      <button type="button" class="btn btn-secondary btn-lg" (click)="uploadData()">Upload</button>
     </div>
   </div>
 </div>
