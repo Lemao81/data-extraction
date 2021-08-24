@@ -1,0 +1,11 @@
+.button-container {
+  min-height: 300px;
+}
+
+.error {
+  color: #ff2d0c;
+}
+
+.row {
+  margin-bottom: 1.5rem !important;
+}

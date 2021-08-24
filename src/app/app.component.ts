@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +7,25 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'data-extraction';
+  firestoreUrl = '';
+
+  @ViewChild('errorText') errorText;
+
+  uploadData(): void {
+    this.checkUrlInput();
+  }
+
+  downloadData(): void {
+    this.checkUrlInput();
+  }
+
+  onUrlChange() {
+    this.errorText.nativeElement.innerHTML = '';
+  }
+
+  private checkUrlInput(): void {
+    if (!this.firestoreUrl) {
+      this.errorText.nativeElement.innerHTML = 'No firestore url provided';
+    }
+  }
 }
