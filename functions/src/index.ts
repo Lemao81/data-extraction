@@ -47,37 +47,45 @@ export const testExcelCreation = functions.https.onRequest((req, resp) => {
 });
 
 /**
- * Creates array of array extracted data for one sheet
+ * Creates array of array as extracted data for one sheet
  * @param {CollectionReference} collectionRef firebase reference of one
  * collection
  */
 async function createSheetData(
   collectionRef: CollectionReference,
 ): Promise<string[][]> {
-  const firstRow = ["Id"];
-  const result = [firstRow];
+  const headerRow = ["Id"];
+  const result = [headerRow];
   const docRefs = await collectionRef.listDocuments();
   for (const docRef of docRefs) {
     const snapshot = await docRef.get();
-    if (snapshot.exists) {
-      const dataRow = [snapshot.id];
-      result.push(dataRow);
-      const data = snapshot.data();
-      if (data) {
-        for (const header in firstRow.slice(1)) {
-          if (Object.prototype.hasOwnProperty.call(data, header)) {
-            dataRow.push(data[header]);
-          }
-        }
-        for (const key in data) {
-          if (
-            Object.prototype.hasOwnProperty.call(data, key) &&
-            !firstRow.includes(key)
-          ) {
-            firstRow.push(key);
-            dataRow.push(data[key]);
-          }
-        }
+    if (!snapshot.exists) {
+      continue;
+    }
+
+    const data = snapshot.data();
+    if (!data) {
+      continue;
+    }
+
+    const dataRow = [snapshot.id];
+    result.push(dataRow);
+
+    headerRow.slice(1).forEach((header) => {
+      if (Object.prototype.hasOwnProperty.call(data, header)) {
+        dataRow.push(data[header]);
+      } else {
+        dataRow.push("");
+      }
+    });
+
+    for (const key in data) {
+      if (
+        Object.prototype.hasOwnProperty.call(data, key) &&
+        !headerRow.includes(key)
+      ) {
+        headerRow.push(key);
+        dataRow.push(data[key]);
       }
     }
   }
