@@ -3,9 +3,10 @@ import * as admin from "firebase-admin";
 import * as xlsx from "xlsx";
 import CollectionReference = admin.firestore.CollectionReference;
 import * as path from "path";
+import * as os from "os";
 
 const fileName = "extracted-data.xlsx";
-const filePath = path.resolve(__dirname, "..", "export", fileName);
+const filePath = path.join(os.tmpdir(), fileName);
 
 admin.initializeApp();
 const db = admin.firestore();
@@ -22,7 +23,7 @@ export const extractData = functions.https.onRequest(async (req, resp) => {
     workbook.Sheets[sheetName] = worksheet;
   }
   xlsx.writeFile(workbook, filePath);
-  resp.sendFile(filePath);
+  resp.download(filePath, fileName);
 });
 
 export const testExcelCreation = functions.https.onRequest((req, resp) => {
@@ -42,7 +43,7 @@ export const testExcelCreation = functions.https.onRequest((req, resp) => {
   workbook.SheetNames.push(sheetName2);
   workbook.Sheets[sheetName2] = worksheet2;
   xlsx.writeFile(workbook, filePath);
-  response.sendFile(filePath);
+  resp.download(filePath, fileName);
 });
 
 /**
