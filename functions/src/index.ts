@@ -30,26 +30,6 @@ export const extractData = functions.https.onRequest(async (req, resp) => {
   resp.download(filePath, fileName);
 });
 
-export const testExcelCreation = functions.https.onRequest((req, resp) => {
-  const workbook = xlsx.utils.book_new();
-  const sheetName1 = "Sheet1";
-  const worksheet1 = xlsx.utils.aoa_to_sheet([
-    ["header1", "header2"],
-    ["data1", "data2"],
-  ]);
-  workbook.SheetNames.push(sheetName1);
-  workbook.Sheets[sheetName1] = worksheet1;
-  const sheetName2 = "Sheet2";
-  const worksheet2 = xlsx.utils.aoa_to_sheet([
-    ["header1", "header2"],
-    ["data1", "data2"],
-  ]);
-  workbook.SheetNames.push(sheetName2);
-  workbook.Sheets[sheetName2] = worksheet2;
-  xlsx.writeFile(workbook, filePath);
-  resp.download(filePath, fileName);
-});
-
 /**
  * Creates array of array as extracted data for one sheet
  * @param {CollectionReference} collRef firebase reference of one
