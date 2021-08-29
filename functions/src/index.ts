@@ -5,7 +5,8 @@ import CollectionReference = admin.firestore.CollectionReference;
 import * as path from "path";
 import * as os from "os";
 import * as csvParse from "csv-parse";
-import { firestore } from "firebase-admin";
+// prettier-ignore
+import {firestore} from "firebase-admin";
 import Timestamp = firestore.Timestamp;
 
 const sortOrderObj: { [key: string]: string[] } = {
@@ -57,7 +58,8 @@ export const bulkUpdate = functions.https.onRequest(async (req, resp) => {
 
         const docRef = await db.collection(record[0]).doc(record[1]);
         if ((await docRef.get()).exists) {
-          await docRef.update({ deleted: Timestamp.now().toMillis() });
+          // prettier-ignore
+          await docRef.update({deleted: Timestamp.now().toMillis()});
         }
       }
 
@@ -70,11 +72,11 @@ export const bulkUpdate = functions.https.onRequest(async (req, resp) => {
 
 /**
  * Creates array of array as extracted data for one sheet
- * @param {CollectionReference} collRef firebase reference of one
+ * @param {CollectionReference} collRef Firebase reference of one
  * collection
  */
 async function createSheetData(
-  collRef: CollectionReference,
+    collRef: CollectionReference,
 ): Promise<string[][]> {
   const columnsObj: { [key: string]: string[] } = {
     Id: [],
@@ -130,6 +132,11 @@ async function createSheetData(
   return transformToRowsArray(columnsSorted);
 }
 
+/**
+ * Returns array with count empty strings
+ * @param {int} count Amount of empty strings
+ * @return {Array<string>} Array containing empty strings
+ */
 function fillWithEmptyString(count: number): string[] {
   const result = new Array<string>(count);
   for (let i = 0; i < count; i++) {
@@ -139,10 +146,17 @@ function fillWithEmptyString(count: number): string[] {
   return result;
 }
 
+/**
+ * Sort extracted data columns
+ * @param {string[]} first Left side array
+ * @param {string[]} second Right side array
+ * @param {string[]} sortOrder Sort order array
+ * @return {int} Order number
+ */
 function sortColumns(
-  first: string[],
-  second: string[],
-  sortOrder: string[],
+    first: string[],
+    second: string[],
+    sortOrder: string[],
 ): number {
   const firstHeader = first[0];
   const secondHeader = second[0];
@@ -165,14 +179,20 @@ function sortColumns(
     sortOrder.includes(firstHeader) &&
     sortOrder.includes(secondHeader)
   ) {
-    return sortOrder.indexOf(firstHeader) < sortOrder.indexOf(secondHeader)
-      ? 1
-      : -1;
+    // prettier-ignore
+    return sortOrder.indexOf(firstHeader) < sortOrder.indexOf(secondHeader) ?
+      1 :
+      -1;
   } else {
     return firstHeader > secondHeader ? 1 : -1;
   }
 }
 
+/**
+ * Tronsforms column array to row array
+ * @param {string[]} columnsArray Columns array to transform
+ * @return {string[]} Rows array
+ */
 function transformToRowsArray(columnsArray: string[][]): string[][] {
   const rowCount = columnsArray[0].length;
   const columnCount = columnsArray.length;
@@ -187,6 +207,11 @@ function transformToRowsArray(columnsArray: string[][]): string[][] {
   return result;
 }
 
+/**
+ * Set failure code + message
+ * @param {functions.Response} resp Response object
+ * @param {Error | undefined} error Error object
+ */
 function sendFailure(resp: functions.Response, error: Error | undefined) {
   resp.status(500);
   resp.send("Bulk update failed. " + error?.message);
