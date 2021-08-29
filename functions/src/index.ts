@@ -4,6 +4,9 @@ import * as xlsx from "xlsx";
 import CollectionReference = admin.firestore.CollectionReference;
 import * as path from "path";
 import * as os from "os";
+import * as csvParse from "csv-parse";
+import { firestore } from "firebase-admin";
+import Timestamp = firestore.Timestamp;
 
 const sortOrderObj: { [key: string]: string[] } = {
   collection1: ["field1", "field3", "field2"],
@@ -20,14 +23,49 @@ const db = admin.firestore();
 export const extractData = functions.https.onRequest(async (req, resp) => {
   const workbook = xlsx.utils.book_new();
   const collRefs = await db.listCollections();
-  for (const collRef of collRefs) {
-    const sheetName = collRef.id;
-    const worksheet = xlsx.utils.aoa_to_sheet(await createSheetData(collRef));
-    workbook.SheetNames.push(sheetName);
-    workbook.Sheets[sheetName] = worksheet;
+  if (!collRefs?.length) {
+    workbook.SheetNames.push("Sheet1");
+    workbook.Sheets.Sheet1 = xlsx.utils.aoa_to_sheet([[]]);
+  } else {
+    for (const collRef of collRefs) {
+      const sheetName = collRef.id;
+      const worksheet = xlsx.utils.aoa_to_sheet(await createSheetData(collRef));
+      workbook.SheetNames.push(sheetName);
+      workbook.Sheets[sheetName] = worksheet;
+    }
   }
   xlsx.writeFile(workbook, filePath);
   resp.download(filePath, fileName);
+});
+
+export const bulkUpdate = functions.https.onRequest(async (req, resp) => {
+  try {
+    if (!(req.body instanceof Buffer)) {
+      sendFailure(resp, new Error("Irregular upload format"));
+    }
+
+    csvParse(req.body as Buffer, async (error, records: Array<any>) => {
+      if (error) {
+        sendFailure(resp, error);
+        return;
+      }
+
+      for (const record of records) {
+        if (record.length !== 2) {
+          continue;
+        }
+
+        const docRef = await db.collection(record[0]).doc(record[1]);
+        if ((await docRef.get()).exists) {
+          await docRef.update({ deleted: Timestamp.now().toMillis() });
+        }
+      }
+
+      resp.send("Bulk update succeeded");
+    });
+  } catch (error) {
+    sendFailure(resp, error);
+  }
 });
 
 /**
@@ -147,4 +185,9 @@ function transformToRowsArray(columnsArray: string[][]): string[][] {
   }
 
   return result;
+}
+
+function sendFailure(resp: functions.Response, error: Error | undefined) {
+  resp.status(500);
+  resp.send("Bulk update failed. " + error?.message);
 }
