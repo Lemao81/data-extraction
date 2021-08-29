@@ -1,0 +1,5 @@
+Debug functions:
+Execute npm build:watch
+set GOOGLE_APPLICATION_CREDENTIALS="C:\MyProjects\dataextraction-fd53f-firebase-adminsdk-je5y1-853597ca73.json"
+firebase emulators:start --inspect-functions
+Attach localhost:9229 node process
