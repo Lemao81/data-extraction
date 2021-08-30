@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ToastrService } from 'ngx-toastr';
 
 @Component({
@@ -22,7 +22,8 @@ export class AppComponent {
       return;
     }
 
-    this.http.post('/bulkUpdate', files[0]).subscribe(
+    const headers = new HttpHeaders({ 'Content-Type': 'text/csv' });
+    this.http.post('/bulkUpdate', files[0], { headers, responseType: 'text' }).subscribe(
       (_) => this.toastr.success('Bulk update succeeded'),
       (error) => {
         console.error(JSON.stringify(error));
