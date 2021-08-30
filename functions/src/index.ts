@@ -16,27 +16,34 @@ const sortOrderObj: { [key: string]: string[] } = {
 
 const idHeader = "Id";
 const fileName = "extracted-data.xlsx";
-const filePath = path.join(os.tmpdir(), fileName);
 
 admin.initializeApp();
 const db = admin.firestore();
 
 export const extractData = functions.https.onRequest(async (req, resp) => {
-  const workbook = xlsx.utils.book_new();
-  const collRefs = await db.listCollections();
-  if (!collRefs?.length) {
-    workbook.SheetNames.push("Sheet1");
-    workbook.Sheets.Sheet1 = xlsx.utils.aoa_to_sheet([[]]);
-  } else {
-    for (const collRef of collRefs) {
-      const sheetName = collRef.id;
-      const worksheet = xlsx.utils.aoa_to_sheet(await createSheetData(collRef));
-      workbook.SheetNames.push(sheetName);
-      workbook.Sheets[sheetName] = worksheet;
+  try {
+    const workbook = xlsx.utils.book_new();
+    const collRefs = await db.listCollections();
+    if (!collRefs?.length) {
+      workbook.SheetNames.push("Sheet1");
+      workbook.Sheets.Sheet1 = xlsx.utils.aoa_to_sheet([[]]);
+    } else {
+      for (const collRef of collRefs) {
+        const sheetName = collRef.id;
+        const worksheet = xlsx.utils.aoa_to_sheet(
+          await createSheetData(collRef),
+        );
+        workbook.SheetNames.push(sheetName);
+        workbook.Sheets[sheetName] = worksheet;
+      }
     }
+
+    const filePath = path.join(os.tmpdir(), fileName);
+    xlsx.writeFile(workbook, filePath);
+    resp.download(filePath, fileName);
+  } catch (error) {
+    sendFailure(resp, error);
   }
-  xlsx.writeFile(workbook, filePath);
-  resp.download(filePath, fileName);
 });
 
 export const bulkUpdate = functions.https.onRequest(async (req, resp) => {
@@ -76,7 +83,7 @@ export const bulkUpdate = functions.https.onRequest(async (req, resp) => {
  * collection
  */
 async function createSheetData(
-    collRef: CollectionReference,
+  collRef: CollectionReference,
 ): Promise<string[][]> {
   const columnsObj: { [key: string]: string[] } = {
     Id: [],
@@ -154,9 +161,9 @@ function fillWithEmptyString(count: number): string[] {
  * @return {int} Order number
  */
 function sortColumns(
-    first: string[],
-    second: string[],
-    sortOrder: string[],
+  first: string[],
+  second: string[],
+  sortOrder: string[],
 ): number {
   const firstHeader = first[0];
   const secondHeader = second[0];
@@ -181,10 +188,10 @@ function sortColumns(
   ) {
     // prettier-ignore
     return sortOrder.indexOf(firstHeader) < sortOrder.indexOf(secondHeader) ?
-      1 :
-      -1;
+      -1 :
+      1;
   } else {
-    return firstHeader > secondHeader ? 1 : -1;
+    return firstHeader < secondHeader ? -1 : 1;
   }
 }
 
@@ -197,6 +204,7 @@ function transformToRowsArray(columnsArray: string[][]): string[][] {
   const rowCount = columnsArray[0].length;
   const columnCount = columnsArray.length;
   const result: string[][] = new Array<string[]>(rowCount);
+
   for (let i = 0; i < rowCount; i++) {
     result[i] = new Array<string>(columnCount);
     for (let j = 0; j < columnCount; j++) {
