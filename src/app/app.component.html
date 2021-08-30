@@ -1,10 +1,11 @@
 <div class="d-flex justify-content-center align-items-center w-100 h-100">
   <div class="button-container">
     <div class="row">
-      <button type="button" class="btn btn-secondary btn-lg" (click)="downloadData()">Download</button>
+      <a [href]="'/extractData'" class="btn btn-secondary btn-lg">Download</a>
     </div>
     <div class="row">
-      <button type="button" class="btn btn-secondary btn-lg" (click)="uploadData()">Upload</button>
+      <button type="button" class="btn btn-secondary btn-lg" (click)="upload.click()">Upload</button>
+      <input #upload type="file" [hidden]="true" (change)="performBulkUpdate(upload.files); upload.value = null" />
     </div>
   </div>
 </div>

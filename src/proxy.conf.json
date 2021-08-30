@@ -1,0 +1,14 @@
+{
+  "/extractData": {
+    "target": "https://us-central1-dataextraction2.cloudfunctions.net/extractData",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
+  },
+  "/bulkUpdate": {
+    "target": "https://us-central1-dataextraction2.cloudfunctions.net/bulkUpdate",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
+  }
+}
