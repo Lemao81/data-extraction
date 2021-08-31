@@ -149,10 +149,7 @@ function sortColumns(first: string[], second: string[], sortOrder: string[]): nu
   } else if (sortOrder.includes(secondHeader) && !sortOrder.includes(firstHeader)) {
     return 1;
   } else if (sortOrder.includes(firstHeader) && sortOrder.includes(secondHeader)) {
-    // prettier-ignore
-    return sortOrder.indexOf(firstHeader) < sortOrder.indexOf(secondHeader) ?
-      -1 :
-      1;
+    return sortOrder.indexOf(firstHeader) < sortOrder.indexOf(secondHeader) ? -1 : 1;
   } else {
     return firstHeader < secondHeader ? -1 : 1;
   }
